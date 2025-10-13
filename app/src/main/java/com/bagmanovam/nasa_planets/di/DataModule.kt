@@ -1,11 +1,22 @@
 package com.bagmanovam.nasa_planets.di
 
+import android.util.Log
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bagmanovam.nasa_planets.BuildConfig
+import com.bagmanovam.nasa_planets.data.db.SpaceNasaDatabase
 import com.bagmanovam.nasa_planets.data.internet.NasaApi
 import com.bagmanovam.nasa_planets.data.repository.SearchSpaceItemsRepositoryImpl
+import com.bagmanovam.nasa_planets.data.repository.SpaceItemsDbRepositoryImpl
+import com.bagmanovam.nasa_planets.domain.interactor.GetSpaceItemsDbInteractor
 import com.bagmanovam.nasa_planets.domain.interactor.GetSpaceItemsInteractor
+import com.bagmanovam.nasa_planets.domain.interactor.SaveSpaceItemsDbInteractor
 import com.bagmanovam.nasa_planets.domain.repository.SearchSpaceItemsRepository
+import com.bagmanovam.nasa_planets.domain.repository.SpaceItemsDbRepository
+import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsDbUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsUseCase
+import com.bagmanovam.nasa_planets.domain.useCase.SaveSpaceItemsDbUseCase
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
@@ -46,6 +57,35 @@ val dataModule = module {
 
     single<SearchSpaceItemsRepository> { SearchSpaceItemsRepositoryImpl(get()) }
 
-
     factory<GetSpaceItemsUseCase> { GetSpaceItemsInteractor(get()) }
+    factory<GetSpaceItemsDbUseCase> { GetSpaceItemsDbInteractor(get()) }
+    factory<SaveSpaceItemsDbUseCase> { SaveSpaceItemsDbInteractor(get()) }
+
+    single<SpaceItemsDbRepository> { SpaceItemsDbRepositoryImpl(get()) }
+
+    single<SpaceNasaDatabase> {
+        Room.databaseBuilder(get(), SpaceNasaDatabase::class.java, "space_db")
+            .fallbackToDestructiveMigration(true)
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    Log.i("Room", "onCreate: ")
+                }
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    Log.i("Room", "onOpen: ${db.path}")
+                }
+
+                override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                    super.onDestructiveMigration(db)
+                    Log.i("Room", "onDestructiveMigration: ${db.version}")
+                }
+            })
+            .build()
+    }
+
+    single {
+        get<SpaceNasaDatabase>().getDao()
+    }
 }

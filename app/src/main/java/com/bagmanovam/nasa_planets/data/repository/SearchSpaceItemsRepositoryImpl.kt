@@ -4,7 +4,8 @@ import android.util.Log
 import com.bagmanovam.nasa_planets.core.domain.NetworkError
 import com.bagmanovam.nasa_planets.core.domain.Result
 import com.bagmanovam.nasa_planets.data.internet.NasaApi
-import com.bagmanovam.nasa_planets.data.model.SpaceItemDto
+import com.bagmanovam.nasa_planets.data.mapper.toDomains
+import com.bagmanovam.nasa_planets.domain.model.SpaceItem
 import com.bagmanovam.nasa_planets.domain.repository.SearchSpaceItemsRepository
 import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.SerializationException
@@ -15,7 +16,7 @@ import java.nio.channels.UnresolvedAddressException
 import kotlin.coroutines.coroutineContext
 
 class SearchSpaceItemsRepositoryImpl(private val api: NasaApi) : SearchSpaceItemsRepository {
-    override suspend fun getSpaceItems(count: Int): Result<List<SpaceItemDto>, NetworkError> {
+    override suspend fun getSpaceItems(count: Int): Result<List<SpaceItem>, NetworkError> {
         return try {
             val response = api.getSpaceObjects(count)
             Log.i(TAG, "getSpaceObjects: $response")
@@ -24,7 +25,7 @@ class SearchSpaceItemsRepositoryImpl(private val api: NasaApi) : SearchSpaceItem
                     try {
                         val bd = response.body()
                         if (bd != null)
-                            Result.Success(bd)
+                            Result.Success(bd.toDomains())
                         else
                             Result.Error(NetworkError.SERVER_ERROR)
                     } catch (_: Exception) {

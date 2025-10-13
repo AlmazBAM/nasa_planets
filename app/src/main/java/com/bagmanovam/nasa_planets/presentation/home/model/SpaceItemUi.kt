@@ -24,15 +24,4 @@ fun SpaceItem.toUi(): SpaceItemUi {
     )
 }
 
-fun SpaceItemUi.toDomain(): SpaceItem {
-    return SpaceItem(
-        date = this.date,
-        explanation = this.explanation,
-        hdUrl = this.hdUrl,
-        mediaType = this.mediaType,
-        serviceVersion = this.serviceVersion,
-        title = this.title,
-        url = this.url
-    )
-}
 
