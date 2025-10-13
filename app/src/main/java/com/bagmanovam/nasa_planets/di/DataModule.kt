@@ -9,11 +9,13 @@ import com.bagmanovam.nasa_planets.data.db.SpaceNasaDatabase
 import com.bagmanovam.nasa_planets.data.internet.NasaApi
 import com.bagmanovam.nasa_planets.data.repository.SearchSpaceItemsRepositoryImpl
 import com.bagmanovam.nasa_planets.data.repository.SpaceItemsDbRepositoryImpl
+import com.bagmanovam.nasa_planets.domain.interactor.GetSpaceItemDbInteractor
 import com.bagmanovam.nasa_planets.domain.interactor.GetSpaceItemsDbInteractor
 import com.bagmanovam.nasa_planets.domain.interactor.GetSpaceItemsInteractor
 import com.bagmanovam.nasa_planets.domain.interactor.SaveSpaceItemsDbInteractor
 import com.bagmanovam.nasa_planets.domain.repository.SearchSpaceItemsRepository
 import com.bagmanovam.nasa_planets.domain.repository.SpaceItemsDbRepository
+import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemDbUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsDbUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.SaveSpaceItemsDbUseCase
@@ -56,12 +58,13 @@ val dataModule = module {
     }
 
     single<SearchSpaceItemsRepository> { SearchSpaceItemsRepositoryImpl(get()) }
+    single<SpaceItemsDbRepository> { SpaceItemsDbRepositoryImpl(get()) }
 
     factory<GetSpaceItemsUseCase> { GetSpaceItemsInteractor(get()) }
     factory<GetSpaceItemsDbUseCase> { GetSpaceItemsDbInteractor(get()) }
     factory<SaveSpaceItemsDbUseCase> { SaveSpaceItemsDbInteractor(get()) }
+    factory<GetSpaceItemDbUseCase> { GetSpaceItemDbInteractor(get()) }
 
-    single<SpaceItemsDbRepository> { SpaceItemsDbRepositoryImpl(get()) }
 
     single<SpaceNasaDatabase> {
         Room.databaseBuilder(get(), SpaceNasaDatabase::class.java, "space_db")

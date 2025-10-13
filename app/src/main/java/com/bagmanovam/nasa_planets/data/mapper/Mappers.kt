@@ -17,6 +17,18 @@ fun SpaceItemDto.toDomain(): SpaceItem {
     )
 }
 
+fun SpaceItemEntity.entityToDomain(): SpaceItem {
+    return SpaceItem(
+        date = this.date,
+        explanation = this.explanation,
+        hdUrl = this.hdUrl,
+        mediaType = this.mediaType,
+        serviceVersion = this.serviceVersion,
+        title = this.title,
+        url = this.url
+    )
+}
+
 fun List<SpaceItemDto>.toDomains(): List<SpaceItem> {
     return this.map { it.toDomain() }
 }

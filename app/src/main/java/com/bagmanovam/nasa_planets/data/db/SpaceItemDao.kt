@@ -15,4 +15,7 @@ interface SpaceItemDao {
 
     @Query("SELECT * FROM space_items")
     fun getSpaceItems(): Flow<List<SpaceItemEntity>>
+
+    @Query("SELECT * FROM space_items WHERE id=:noteId")
+    fun getSpaceItem(noteId: Int): SpaceItemEntity
 }

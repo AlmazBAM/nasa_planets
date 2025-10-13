@@ -1,4 +1,4 @@
-package com.bagmanovam.nasa_planets.presentation.home.model
+package com.bagmanovam.nasa_planets.presentation.description.model
 
 import com.bagmanovam.nasa_planets.domain.model.SpaceItem
 

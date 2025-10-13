@@ -1,19 +1,22 @@
 package com.bagmanovam.nasa_planets
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.bagmanovam.nasa_planets.presentation.description.DescriptionScreen
+import com.bagmanovam.nasa_planets.presentation.description.DescriptionViewModel
 import com.bagmanovam.nasa_planets.presentation.home.HomeScreen
 import com.bagmanovam.nasa_planets.presentation.home.HomeScreenViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun NasaNavHost(
-    navHostController: NavHostController
+fun NasaSpaceNavHost(
+    navHostController: NavHostController,
 ) {
     NavHost(
         navController = navHostController,
@@ -25,14 +28,24 @@ fun NasaNavHost(
             HomeScreen(
                 uiState = uiState,
                 onHomeAction = homeScreenViewModel::onAction,
-                onItemClick = {
-
+                onItemClick = { itemId ->
+                    navHostController.navigate(Description(itemId))
                 }
             )
         }
 
         composable<Description> {
+            val viewModel = koinViewModel<DescriptionViewModel>(viewModelStoreOwner = it)
             val itemId = it.toRoute<Description>().itemId
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(itemId) {
+                viewModel.getSpaceItemById(itemId)
+            }
+
+            DescriptionScreen(
+                uiState = uiState
+            )
 
         }
     }

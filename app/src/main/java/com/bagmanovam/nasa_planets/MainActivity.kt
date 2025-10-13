@@ -22,6 +22,6 @@ class MainActivity : ComponentActivity() {
 fun AppContent() {
     Nasa_planetsTheme {
         val navHostController = rememberNavController()
-        NasaNavHost(navHostController = navHostController)
+        NasaSpaceNavHost(navHostController = navHostController)
     }
 }

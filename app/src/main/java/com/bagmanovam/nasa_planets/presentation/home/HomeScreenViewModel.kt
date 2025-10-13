@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bagmanovam.nasa_planets.core.domain.onError
 import com.bagmanovam.nasa_planets.core.domain.onSuccess
+import com.bagmanovam.nasa_planets.domain.model.SpaceItem
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsDbUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.SaveSpaceItemsDbUseCase
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 class HomeScreenViewModel(
     private val requestUseCase: GetSpaceItemsUseCase,
@@ -24,14 +26,30 @@ class HomeScreenViewModel(
     private val _uiState = MutableStateFlow(HomeScreenState())
     val uiState = _uiState
         .onStart {
+            _uiState.update {
+                it.copy(
+                    isLoading = false
+                )
+            }
             requestUseCase(20)
                 .onSuccess {
-                    Log.e(TAG, "onSuccess: ", )
+                    Log.e(TAG, "onSuccess: ")
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = true
+                        )
+                    }
                     saveDbUseCase(it)
                 }
                 .onError {
-                    Log.e(TAG, "onError: ", )
+                    Log.e(TAG, "onError: ")
                     val items = getDbUseCase().first()
+                    _uiState.update {
+                        it.copy(
+                            isLoading = true,
+                            spaceItems = items
+                        )
+                    }
                 }
         }
         .stateIn(

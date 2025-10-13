@@ -6,5 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface SpaceItemsDbRepository {
 
     suspend fun getAllSpaceItems(): Flow<List<SpaceItem>>
+    suspend fun getSpaceItem(noteId: Int): SpaceItem
     suspend fun saveAllSpaceItems(items: List<SpaceItem>)
 }
