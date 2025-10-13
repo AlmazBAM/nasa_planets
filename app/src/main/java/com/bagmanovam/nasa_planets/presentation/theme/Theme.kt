@@ -1,6 +1,5 @@
-package com.bagmanovam.nasa_planets.ui.theme
+package com.bagmanovam.nasa_planets.presentation.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

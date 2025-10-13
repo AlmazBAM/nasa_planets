@@ -1,4 +1,4 @@
-package com.bagmanovam.nasa_planets.ui.theme
+package com.bagmanovam.nasa_planets.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
