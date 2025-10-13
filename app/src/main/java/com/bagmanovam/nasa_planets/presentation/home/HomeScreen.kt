@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.bagmanovam.nasa_planets.core.presentation.SearchBar
-import com.bagmanovam.nasa_planets.domain.model.SpaceObject
+import com.bagmanovam.nasa_planets.domain.model.SpaceItem
 import com.bagmanovam.nasa_planets.presentation.home.state.HomeScreenState
 import com.bagmanovam.nasa_planets.presentation.theme.Nasa_planetsTheme
 
@@ -30,7 +30,7 @@ import com.bagmanovam.nasa_planets.presentation.theme.Nasa_planetsTheme
 fun HomeScreen(
     modifier: Modifier = Modifier,
     uiState: HomeScreenState,
-    onItemClick: (SpaceObject) -> Unit,
+    onItemClick: (SpaceItem) -> Unit,
     onHomeAction: (HomeEvent) -> Unit,
 ) {
     Scaffold { innerPAdding ->
@@ -53,7 +53,7 @@ fun HomeScreen(
                 onQueryChange = { onHomeAction(HomeEvent.QueryChange(it)) }
             )
             LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 100.dp)) {
-                items(uiState.spaceObjects) { spaceObject ->
+                items(uiState.spaceItems) { spaceObject ->
                     AsyncImage(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp)),

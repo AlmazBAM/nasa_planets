@@ -64,7 +64,10 @@ dependencies {
 
     implementation(libs.bundles.koin)
 
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
     implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
