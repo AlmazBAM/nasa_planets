@@ -1,5 +1,6 @@
 package com.bagmanovam.nasa_planets.presentation.description
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemDbUseCase
@@ -14,7 +15,7 @@ class DescriptionViewModel(
     private val getSpaceItemDbUseCase: GetSpaceItemDbUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<DescriptionState>(DescriptionState())
+    private val _uiState = MutableStateFlow(DescriptionState())
     val uiState = _uiState
         .stateIn(
             viewModelScope,
@@ -25,6 +26,7 @@ class DescriptionViewModel(
     fun getSpaceItemById(itemId: Int) {
         viewModelScope.launch {
             val item = getSpaceItemDbUseCase(itemId)
+            Log.i("TAG", "getSpaceItemById: $itemId", )
             _uiState.update { state ->
                 state.copy(
                     title = item.title,

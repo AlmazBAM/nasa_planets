@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,15 +39,19 @@ fun NasaSpaceNavHost(
             val viewModel = koinViewModel<DescriptionViewModel>(viewModelStoreOwner = it)
             val itemId = it.toRoute<Description>().itemId
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val isMainScreen = it.destination.hasRoute(Home::class)
 
             LaunchedEffect(itemId) {
                 viewModel.getSpaceItemById(itemId)
             }
 
             DescriptionScreen(
-                uiState = uiState
+                uiState = uiState,
+                isMainScreen = isMainScreen,
+                onBackClick = {
+                    navHostController.popBackStack()
+                }
             )
-
         }
     }
 }
