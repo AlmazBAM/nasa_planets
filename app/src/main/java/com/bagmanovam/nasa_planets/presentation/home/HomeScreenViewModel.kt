@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bagmanovam.nasa_planets.core.domain.onError
 import com.bagmanovam.nasa_planets.core.domain.onSuccess
-import com.bagmanovam.nasa_planets.domain.model.SpaceItem
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsDbUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.GetSpaceItemsUseCase
 import com.bagmanovam.nasa_planets.domain.useCase.SaveSpaceItemsDbUseCase
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class HomeScreenViewModel(
     private val requestUseCase: GetSpaceItemsUseCase,
@@ -31,26 +31,31 @@ class HomeScreenViewModel(
                     isLoading = false
                 )
             }
-            requestUseCase(20)
-                .onSuccess {
-                    Log.e(TAG, "onSuccess: ")
-                    _uiState.update { state ->
-                        state.copy(
-                            isLoading = true
-                        )
+            viewModelScope.launch {
+                requestUseCase(20)
+                    .onSuccess {
+                        Log.e(TAG, "onSuccess: ")
+                        _uiState.update { state ->
+                            state.copy(
+                                errorMessage = null,
+                                isLoading = true
+                            )
+                        }
+                        saveDbUseCase(it)
                     }
-                    saveDbUseCase(it)
-                }
-                .onError {
-                    Log.e(TAG, "onError: ")
-                    val items = getDbUseCase().first()
-                    _uiState.update {
-                        it.copy(
-                            isLoading = true,
-                            spaceItems = items
-                        )
+                    .onError {
+                        Log.e(TAG, "onError: ")
+                        val items = getDbUseCase().first()
+                        _uiState.update { state ->
+                            state.copy(
+                                errorMessage = it,
+                                isLoading = true,
+                                spaceItems = items
+                            )
+                        }
+
                     }
-                }
+            }
         }
         .stateIn(
             viewModelScope,
