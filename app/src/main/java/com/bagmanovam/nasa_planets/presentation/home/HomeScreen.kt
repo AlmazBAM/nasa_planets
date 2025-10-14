@@ -36,6 +36,8 @@ import com.bagmanovam.nasa_planets.core.presentation.SearchBar
 import com.bagmanovam.nasa_planets.core.presentation.utils.toString
 import com.bagmanovam.nasa_planets.presentation.home.state.HomeScreenState
 import com.bagmanovam.nasa_planets.presentation.theme.Nasa_planetsTheme
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun HomeScreen(
@@ -45,6 +47,8 @@ fun HomeScreen(
     onHomeAction: (HomeEvent) -> Unit,
 ) {
     val context = LocalContext.current
+    val refreshState = rememberSwipeRefreshState(uiState.isSwipedToUpdate)
+
     Scaffold { innerPAdding ->
         Column(
             modifier = modifier
@@ -53,6 +57,7 @@ fun HomeScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
             SearchBar(
                 query = uiState.query,
                 keyboardOptions = KeyboardOptions.Default.copy(
@@ -63,54 +68,60 @@ fun HomeScreen(
                     showKeyboardOnFocus = true,
                     hintLocales = LocaleList(Locale("ru"))
                 ),
-                onQueryChange = { onHomeAction(HomeEvent.QueryChange(it)) }
+                onQueryChange = { onHomeAction(HomeEvent.OnQueryChange(it)) }
             )
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (uiState.isLoading) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 150.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        itemsIndexed(uiState.spaceItems) { index, spaceObject ->
-                            Box(
-                                modifier = Modifier.aspectRatio(1f)
-                            ) {
-                                AsyncImage(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .clickable {
-                                            onItemClick(index)
-                                        },
-                                    contentScale = ContentScale.Crop,
-                                    model = spaceObject.url,
-                                    contentDescription = "Item of the space objects"
-                                )
+                SwipeRefresh(
+                    state = refreshState,
+                    onRefresh = { onHomeAction(HomeEvent.OnRefresh) }
+                ) {
+                    if (uiState.isLoading) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(minSize = 150.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            itemsIndexed(uiState.spaceItems) { index, spaceObject ->
+                                Box(
+                                    modifier = Modifier.aspectRatio(1f)
+                                ) {
+                                    AsyncImage(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .clickable {
+                                                onItemClick(index)
+                                            },
+                                        contentScale = ContentScale.Crop,
+                                        model = spaceObject.url,
+                                        contentDescription = "Item of the space objects"
+                                    )
+                                }
                             }
                         }
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.onBackground,
+                                strokeWidth = 3.dp,
+                            )
+                        }
                     }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            strokeWidth = 3.dp,
-                        )
-                    }
-                }
-                LaunchedEffect(uiState.errorMessage) {
-                    uiState.errorMessage?.let { error ->
-                        Toast.makeText(
-                            context,
-                            error.toString(context),
-                            Toast.LENGTH_LONG
-                        ).show()
+                    LaunchedEffect(uiState.errorMessage) {
+                        uiState.errorMessage?.let { error ->
+                            Toast.makeText(
+                                context,
+                                error.toString(context),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
             }
+
         }
     }
 }

@@ -26,35 +26,14 @@ class HomeScreenViewModel(
     private val _uiState = MutableStateFlow(HomeScreenState())
     val uiState = _uiState
         .onStart {
-            _uiState.update {
-                it.copy(
-                    isLoading = false
+            val items = getDbUseCase().first()
+            _uiState.update { state ->
+                state.copy(
+                    errorMessage = null,
+                    isLoading = true,
+                    isSwipedToUpdate = false,
+                    spaceItems = items
                 )
-            }
-            viewModelScope.launch {
-                requestUseCase(20)
-                    .onSuccess {
-                        Log.e(TAG, "onSuccess: ")
-                        _uiState.update { state ->
-                            state.copy(
-                                errorMessage = null,
-                                isLoading = true
-                            )
-                        }
-                        saveDbUseCase(it)
-                    }
-                    .onError {
-                        Log.e(TAG, "onError: ")
-                        val items = getDbUseCase().first()
-                        _uiState.update { state ->
-                            state.copy(
-                                errorMessage = it,
-                                isLoading = true,
-                                spaceItems = items
-                            )
-                        }
-
-                    }
             }
         }
         .stateIn(
@@ -66,8 +45,43 @@ class HomeScreenViewModel(
 
     fun onAction(event: HomeEvent) {
         when (event) {
-            is HomeEvent.QueryChange -> {
+            is HomeEvent.OnQueryChange -> {
                 Log.i(TAG, "query changed: ${event.query}")
+            }
+
+            HomeEvent.OnRefresh -> {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        isSwipedToUpdate = true
+                    )
+                }
+                viewModelScope.launch {
+                    requestUseCase(20)
+                        .onSuccess {
+                            Log.e(TAG, "onSuccess: ")
+                            _uiState.update { state ->
+                                state.copy(
+                                    errorMessage = null,
+                                    isLoading = true,
+                                    isSwipedToUpdate = false
+                                )
+                            }
+                            saveDbUseCase(it)
+                        }
+                        .onError {
+                            Log.e(TAG, "onError: ")
+                            val items = getDbUseCase().first()
+                            _uiState.update { state ->
+                                state.copy(
+                                    errorMessage = it,
+                                    isLoading = true,
+                                    isSwipedToUpdate = false,
+                                    spaceItems = items
+                                )
+                            }
+                        }
+                }
             }
         }
     }
